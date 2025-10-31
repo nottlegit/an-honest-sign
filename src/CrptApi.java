@@ -70,15 +70,12 @@ public class CrptApi {
     public CreateDocumentResponse createDocument(Document document, String signature) throws Exception {
         waitIfNeeded();
 
-        // Gson сериализует объект в JSON
         String documentJson = gson.toJson(document);
 
-        // Кодируем в Base64
         String encodedDocument = Base64.getEncoder().encodeToString(
                 documentJson.getBytes(StandardCharsets.UTF_8)
         );
 
-        // Создаем запрос как объект с использованием конструктора
         CreateDocumentRequest request = new CreateDocumentRequest(
                 DocumentFormat.MANUAL,
                 encodedDocument,
@@ -90,7 +87,6 @@ public class CrptApi {
         String requestBody = gson.toJson(request);
         String responseJson = sendHttpRequest(requestBody);
 
-        // Gson десериализует ответ
         return gson.fromJson(responseJson, CreateDocumentResponse.class);
     }
 
@@ -121,7 +117,6 @@ public class CrptApi {
         HttpResponse<String> response = httpClient.send(request,
                 HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
 
-        // Обработка ошибок авторизации согласно документации
         if (response.statusCode() == 401) {
             throw new RuntimeException(
                     "Ошибка авторизации (401): Bearer токен недействителен или истек (время жизни 10 часов)");
@@ -130,7 +125,6 @@ public class CrptApi {
                     "Доступ запрещен (403): Недостаточно прав или товарная группа не подключена");
         }
 
-        // Проверяем статус ответа
         if (response.statusCode() >= 200 && response.statusCode() < 300) {
             return response.body();
         } else {
